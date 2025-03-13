@@ -18,10 +18,18 @@ endif()
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-# Target Sandy Bridge for all projects
-add_compile_options(
-    -march=sandybridge
-)
+# Target architecture-specific options
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|i686")
+    # Target Sandy Bridge for x86/x64 projects
+    add_compile_options(
+        -march=sandybridge
+    )
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64")
+    # ARM64-specific options if needed
+    add_compile_options(
+        -march=armv8-a
+    )
+endif()
 
 add_subdirectory(${UNLEASHED_RECOMP_THIRDPARTY_ROOT})
 add_subdirectory(${UNLEASHED_RECOMP_TOOLS_ROOT})

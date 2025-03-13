@@ -69,12 +69,26 @@ You can also find the equivalent packages for your preferred distro.
 cmake . --preset linux-release
 ```
 
+For ARM64 Linux, use the ARM64-specific preset:
+```bash
+cmake . --preset linux-arm64-release
+```
+
 > [!NOTE]
-> The available presets are `linux-debug`, `linux-relwithdebinfo` and `linux-release`.
+> The available presets are:
+> - For x64 Linux: `linux-debug`, `linux-relwithdebinfo` and `linux-release`
+> - For ARM64 Linux: `linux-arm64-debug`, `linux-arm64-relwithdebinfo` and `linux-arm64-release`
 
 2. Build the project using the selected configuration.
+
+For x64 Linux:
 ```bash
 cmake --build ./out/build/linux-release --target UnleashedRecomp
+```
+
+For ARM64 Linux:
+```bash
+cmake --build ./out/build/linux-arm64-release --target UnleashedRecomp
 ```
 
 3. Navigate to the directory that was specified as the output in the previous step and run the game.
