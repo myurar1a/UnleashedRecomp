@@ -78,6 +78,74 @@ jobs:
         with:
           name: UnleashedRecomp-Linux-${{ env.CMAKE_PRESET }}
           path: ./out/build/${{ env.CMAKE_PRESET }}/UnleashedRecomp/UnleashedRecomp
+  build-arm64-linux:
+    name: Build Linux
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        arch: [ "arm64" ]
+        preset: ["linux-arm64-debug", "linux-arm64-release", "linux-arm64-relwithdebinfo"]
+    env:
+      LLVM_VERSION: 18
+      CMAKE_PRESET: ${{ matrix.preset }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Checkout Private Repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.ASSET_REPO }}
+          token: ${{ secrets.ASSET_REPO_TOKEN }}
+          path: ./private
+
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ccache-${{ runner.os }}-${{ matrix.preset }}
+  
+      - name: Cache vcpkg
+        uses: actions/cache@v4
+        with:
+          path: |
+            ./thirdparty/vcpkg/downloads
+            ./thirdparty/vcpkg/packages
+          key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
+          restore-keys: |
+              vcpkg-${{ runner.os }}-
+
+      - name: Install Dependencies (Linux)
+        run: |-
+          sudo apt update
+          sudo apt install -y ninja-build llvm-${{ env.LLVM_VERSION }}-dev libgtk-3-dev
+
+      - name: Cache ccache Directory
+        uses: actions/cache@v4
+        with:
+          path: /tmp/ccache
+          key: ccache-${{ runner.os }}-${{ matrix.preset }}
+
+      - name: Prepare Project
+        run: cp ./private/* ./UnleashedRecompLib/private
+  
+      - name: Configure Project
+        env:
+          CCACHE_DIR: /tmp/ccache
+        run: cmake . --preset ${{ env.CMAKE_PRESET }} -DSDL2MIXER_VORBIS=VORBISFILE -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER_LAUNCHER=ccache
+
+      - name: Build Project
+        env:
+          CCACHE_DIR: /tmp/ccache
+        run: cmake --build ./out/build/${{ env.CMAKE_PRESET }} --target UnleashedRecomp
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: UnleashedRecomp-Linux-${{ env.CMAKE_PRESET }}
+          path: ./out/build/${{ env.CMAKE_PRESET }}/UnleashedRecomp/UnleashedRecomp
   build-windows:
     name: Build Windows
     runs-on: windows-latest
@@ -145,11 +213,13 @@ jobs:
           Move-Item -Path ".\out\build\${{ env.CMAKE_PRESET }}\UnleashedRecomp\dxil.dll" -Destination ".\release\dxil.dll"
           Move-Item -Path ".\out\build\${{ env.CMAKE_PRESET }}\UnleashedRecomp\UnleashedRecomp.exe" -Destination ".\release\UnleashedRecomp.exe"
 
+          Compress-Archive -Path .\release\* -DestinationPath .\UnleashedRecomp-Windows.zip
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: UnleashedRecomp-Windows-${{ env.CMAKE_PRESET }}
-          path: .\release
+          path: .\UnleashedRecomp-Windows.zip
 
       - name: Upload PDB
         uses: actions/upload-artifact@v4
