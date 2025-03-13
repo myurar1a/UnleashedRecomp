@@ -317,7 +317,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     target_compile_definitions(UnleashedRecomp PRIVATE SDL_VULKAN_ENABLED)
 endif()
 
-find_package(directx-dxc REQUIRED)
+#find_package(directx-dxc REQUIRED)
 find_package(CURL REQUIRED)
 
 if (UNLEASHED_RECOMP_D3D12)

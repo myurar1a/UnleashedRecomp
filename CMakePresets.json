@@ -130,11 +130,7 @@
                     "type": "STRING"
                 },
                 "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "${sourceDir}/toolchains/linux-clang.cmake",
-                "VCPKG_TARGET_ARCHITECTURE": "arm64",
-                "VCPKG_INSTALL_OPTIONS": {
-                    "value": "--allow-unsupported",
-                    "type": "STRING"
-                }
+                "VCPKG_TARGET_ARCHITECTURE": "arm64"
             },
             "environment": {
                 "VCPKG_ROOT": "${sourceDir}/thirdparty/vcpkg"
